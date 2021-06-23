@@ -16,7 +16,6 @@ export default class Pixel extends Component {
   }
 
   handleClick() {
-    console.log(this.state.col, this.state.row);
     this.setState((prevState) => ({
       isTouched: true,
     }));
@@ -32,7 +31,6 @@ export default class Pixel extends Component {
       classNames.push("pixel-untouched");
     }
 
-    // console.log(convType);
     if (convType) {
       for (let i = 0; i < convType.length; i++) {
         classNames.push("pixel-" + convType[i]);

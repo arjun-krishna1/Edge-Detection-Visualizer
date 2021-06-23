@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import Pixel from "./Pixel/Pixel";
-import Window from "./Window/Window";
 
 import "./EdgeDetectionVisualizer.css";
 
 const NUM_ROWS = 25;
-const NUM_COLS = 60;
-const INTERVAL = 1000;
+const NUM_COLS = 25;
+const UPDATE_INTERVAL = 10;
 
 const DIRECTIONS = [
   "center",
@@ -42,23 +41,66 @@ export default class EdgeDetectionVisualizer extends Component {
       },
       time: 0,
     };
+    this.moveWindow = this.moveWindow.bind(this);
+    this.clearWindow = this.clearWindow.bind(this);
+    this.updateWindowClasses = this.updateWindowClasses.bind(this);
+  }
+
+  updateWindowClasses() {
+    const newPixels = this.state.pixels;
+
+    for (let i = 0; i < DIRECTIONS.length; i++) {
+      const dir = DIRECTIONS[i];
+
+      const newX = this.state.window.center.x + DIRECTIONS_MAP[dir].dx;
+      const newY = this.state.window.center.y + DIRECTIONS_MAP[dir].dy;
+      const currentPixel = newPixels[newY][newX];
+      currentPixel.convType = this.getPixelWindowProps(currentPixel).split("_");
+      this.setState({ pixels: newPixels });
+    }
+  }
+
+  clearWindow() {
+    const newPixels = this.state.pixels;
+    const clearCenter = this.state.window.center;
+    for (let i = 0; i < DIRECTIONS.length; i++) {
+      const dir = DIRECTIONS[i];
+
+      const newX = clearCenter.x + DIRECTIONS_MAP[dir].dx;
+      const newY = clearCenter.y + DIRECTIONS_MAP[dir].dy;
+
+      newPixels[newY][newX].convType = [];
+
+      this.setState({ pixels: newPixels });
+    }
   }
 
   moveWindow() {
-    if (this.state.window.center.x < NUM_COLS) {
-      const newWindow = {
-        center: {
-          x: this.state.window.center.x + 1,
-          y: this.state.window.center.y,
-        },
-        borders: 
+    this.clearWindow();
+
+    let newCenter = this.state.window.center;
+    if (this.state.window.center.x < NUM_COLS - 2) {
+      // move x to the right 1
+      newCenter = {
+        x: this.state.window.center.x + 1,
+        y: this.state.window.center.y,
       };
-      console.log(newWindow)
-      this.setState(newWindow);
-    } else if (this.state.window.center.y < NUM_ROWS) {
-      this.state.window.center.x = 0;
-      this.state.window.center.y++;
+    } else if (this.state.window.center.y < NUM_ROWS - 2) {
+      // move x back to the left border and y down one
+      newCenter = newCenter = {
+        x: 1,
+        y: this.state.window.center.y + 1,
+      };
+      this.updateWindowClasses();
     }
+
+    this.setState({
+      window: {
+        center: newCenter,
+      },
+    });
+
+    this.updateWindowClasses();
   }
 
   getPixelWindowProps(pixel) {
@@ -79,8 +121,6 @@ export default class EdgeDetectionVisualizer extends Component {
 
   componentDidMount() {
     const pixels = [];
-    const windowBorder = [];
-    let windowCenter;
     // create fifteen rows
     for (let row = 0; row < NUM_ROWS; row++) {
       //create 50 columns
@@ -103,8 +143,8 @@ export default class EdgeDetectionVisualizer extends Component {
       pixels.push(currentRow);
     }
     //update pixels in state with new pixels
-    this.setState({ pixels });
-    this.interval = setInterval(this.moveWindow, INTERVAL);
+    this.setState({ pixels: pixels });
+    this.interval = setInterval(this.moveWindow, UPDATE_INTERVAL);
   }
 
   componentWillUnmount() {
@@ -113,9 +153,6 @@ export default class EdgeDetectionVisualizer extends Component {
 
   render() {
     const { pixels } = this.state;
-    this.moveWindow();
-    // console.log(pixels);
-    // 12:13
     return (
       <div className="grid">
         {pixels.map((row, rowIdx) => {
