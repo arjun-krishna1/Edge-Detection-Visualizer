@@ -16,7 +16,7 @@ export default class Pixel extends Component {
   }
 
   handleClick() {
-    this.setState((prevState) => ({
+    this.setState(() => ({
       isTouched: true,
     }));
   }

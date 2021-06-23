@@ -3,9 +3,9 @@ import Pixel from "./Pixel/Pixel";
 
 import "./EdgeDetectionVisualizer.css";
 
-const NUM_ROWS = 25;
+const NUM_ROWS = 4;
 const NUM_COLS = 25;
-const UPDATE_INTERVAL = 10;
+const UPDATE_INTERVAL = 60;
 
 const DIRECTIONS = [
   "center",
@@ -77,7 +77,6 @@ export default class EdgeDetectionVisualizer extends Component {
 
   moveWindow() {
     this.clearWindow();
-
     let newCenter = this.state.window.center;
     if (this.state.window.center.x < NUM_COLS - 2) {
       // move x to the right 1
@@ -91,7 +90,6 @@ export default class EdgeDetectionVisualizer extends Component {
         x: 1,
         y: this.state.window.center.y + 1,
       };
-      this.updateWindowClasses();
     }
 
     this.setState({
@@ -99,7 +97,6 @@ export default class EdgeDetectionVisualizer extends Component {
         center: newCenter,
       },
     });
-
     this.updateWindowClasses();
   }
 
@@ -117,6 +114,10 @@ export default class EdgeDetectionVisualizer extends Component {
     }
 
     return "";
+  }
+
+  componentDidUpdate() {
+    // this.moveWindow();
   }
 
   componentDidMount() {
@@ -144,7 +145,9 @@ export default class EdgeDetectionVisualizer extends Component {
     }
     //update pixels in state with new pixels
     this.setState({ pixels: pixels });
-    this.interval = setInterval(this.moveWindow, UPDATE_INTERVAL);
+    if (UPDATE_INTERVAL) {
+      this.interval = setInterval(this.moveWindow, UPDATE_INTERVAL);
+    }
   }
 
   componentWillUnmount() {
