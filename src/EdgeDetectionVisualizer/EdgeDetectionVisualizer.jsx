@@ -40,15 +40,24 @@ export default class EdgeDetectionVisualizer extends Component {
         center: { x: 1, y: 1 },
         borders: [],
       },
+      time: 0,
     };
   }
 
   moveWindow() {
-    if (window.center.x < NUM_COLS) {
-      window.center.x++;
-    } else if (window.center.y < NUM_ROWS) {
-      window.center.x = 0;
-      window.center.y++;
+    if (this.state.window.center.x < NUM_COLS) {
+      const newWindow = {
+        center: {
+          x: this.state.window.center.x + 1,
+          y: this.state.window.center.y,
+        },
+        borders: 
+      };
+      console.log(newWindow)
+      this.setState(newWindow);
+    } else if (this.state.window.center.y < NUM_ROWS) {
+      this.state.window.center.x = 0;
+      this.state.window.center.y++;
     }
   }
 
@@ -95,6 +104,7 @@ export default class EdgeDetectionVisualizer extends Component {
     }
     //update pixels in state with new pixels
     this.setState({ pixels });
+    this.interval = setInterval(this.moveWindow, INTERVAL);
   }
 
   componentWillUnmount() {
@@ -103,6 +113,7 @@ export default class EdgeDetectionVisualizer extends Component {
 
   render() {
     const { pixels } = this.state;
+    this.moveWindow();
     // console.log(pixels);
     // 12:13
     return (
