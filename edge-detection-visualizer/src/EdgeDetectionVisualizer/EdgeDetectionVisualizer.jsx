@@ -1,44 +1,91 @@
 import React, { Component } from "react";
 import Pixel from "./Pixel/Pixel";
+import Window from "./Window/Window";
 
 import "./EdgeDetectionVisualizer.css";
+
+const NUM_ROWS = 25;
+const NUM_COLS = 60;
+const INTERVAL = 1000;
+
+const DIRECTIONS = [
+  "center",
+  "left_top",
+  "top",
+  "right_top",
+  "right",
+  "right_bottom",
+  "bottom",
+  "left_bottom",
+  "left",
+];
+const DIRECTIONS_MAP = {
+  center: { dx: 0, dy: 0 },
+  left_top: { dx: -1, dy: -1 },
+  top: { dx: 0, dy: -1 },
+  right_top: { dx: 1, dy: -1 },
+  right: { dx: 1, dy: 0 },
+  right_bottom: { dx: 1, dy: 1 },
+  bottom: { dx: 0, dy: 1 },
+  left_bottom: { dx: -1, dy: 1 },
+  left: { dx: -1, dy: 0 },
+};
 
 export default class EdgeDetectionVisualizer extends Component {
   constructor(props) {
     super(props);
     this.state = {
       pixels: [],
-      num_rows: 25,
-      num_columns: 60,
-      kernel_center: { x: 1, y: 1 },
+      window: {
+        center: { x: 1, y: 1 },
+        borders: [],
+      },
     };
+  }
+
+  moveWindow() {
+    if (window.center.x < NUM_COLS) {
+      window.center.x++;
+    } else if (window.center.y < NUM_ROWS) {
+      window.center.x = 0;
+      window.center.y++;
+    }
+  }
+
+  getPixelWindowProps(pixel) {
+    for (let i = 0; i < DIRECTIONS.length; i++) {
+      const dir = DIRECTIONS[i];
+      let inWindow =
+        pixel.x === this.state.window.center.x + DIRECTIONS_MAP[dir].dx;
+      inWindow =
+        inWindow &&
+        pixel.y === this.state.window.center.y + DIRECTIONS_MAP[dir].dy;
+      if (inWindow) {
+        return dir;
+      }
+    }
+
+    return "";
   }
 
   componentDidMount() {
     const pixels = [];
+    const windowBorder = [];
+    let windowCenter;
     // create fifteen rows
-    for (let row = 0; row < this.state.num_rows; row++) {
+    for (let row = 0; row < NUM_ROWS; row++) {
       //create 50 columns
       const currentRow = [];
-      for (let col = 0; col < this.state.num_columns; col++) {
+      for (let col = 0; col < NUM_COLS; col++) {
         const currentPixel = {
-          col,
-          row,
+          x: col,
+          y: row,
           isTouched: false,
-          convType: null,
+          convType: [],
         };
 
-        if (
-          col === this.state.kernel_center.x &&
-          row === this.state.kernel_center.y
-        ) {
-          currentPixel.convType = "center";
-        } else if (
-          col === this.state.kernel_center.x - 1 &&
-          row === this.state.kernel_center.y
-        ) {
-          currentPixel.convType = "left";
-        }
+        currentPixel.convType =
+          this.getPixelWindowProps(currentPixel).split("_");
 
         //add a pixel to this row
         currentRow.push(currentPixel);
@@ -48,6 +95,10 @@ export default class EdgeDetectionVisualizer extends Component {
     }
     //update pixels in state with new pixels
     this.setState({ pixels });
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   render() {

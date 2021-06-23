@@ -34,7 +34,9 @@ export default class Pixel extends Component {
 
     // console.log(convType);
     if (convType) {
-      classNames.push("pixel-" + convType);
+      for (let i = 0; i < convType.length; i++) {
+        classNames.push("pixel-" + convType[i]);
+      }
     } else {
       classNames.push("pixel-not-in-conv");
     }
