@@ -1,6 +1,14 @@
 .pixel {
-    width: 30px;
-    height: 30px;
-    outline: 1px solid grey;
-    display: inline-block;
+  width: 30px;
+  height: 30px;
+  outline: 1px solid grey;
+  display: inline-block;
+}
+
+.pixel-center {
+  background-color: yellowgreen;
+}
+
+.pixel-touched {
+  background-color: black;
 }
